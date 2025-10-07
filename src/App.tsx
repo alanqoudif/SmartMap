@@ -8,6 +8,7 @@ import VirtualMap from './components/VirtualMap/VirtualMap'
 import HousePopup from './components/HousePopup/HousePopup'
 import QGISViewer from './components/QGISViewer/QGISViewer'
 import RealQGISViewer from './components/RealQGISViewer/RealQGISViewer'
+import RealMapWithGIS from './components/RealMapWithGIS/RealMapWithGIS'
 import QGISLayerManager from './components/QGISLayerManager/QGISLayerManager'
 import CitySelector from './components/CitySelector/CitySelector'
 import { MapState, DrawingTool, House, WaterFeature } from './types'
@@ -32,7 +33,7 @@ export default function App() {
   const [isHouseViewerOpen, setIsHouseViewerOpen] = useState(false)
   // إزالة mapType - سنستخدم OpenStreetMap فقط
   const [showBuildings, setShowBuildings] = useState(true)
-  const [currentView, setCurrentView] = useState<'map' | 'id-system' | 'qgis' | 'real-qgis'>('map')
+  const [currentView, setCurrentView] = useState<'map' | 'id-system' | 'qgis' | 'real-qgis' | 'real-map-gis'>('map')
   const [selectedCity, setSelectedCity] = useState('muscat-sultan-qaboos')
   const [mapViewMode, setMapViewMode] = useState<'real' | 'virtual' | 'qgis'>('real')
   const [showHousePopup, setShowHousePopup] = useState(false)
@@ -184,6 +185,16 @@ export default function App() {
                >
                  GIS الحقيقي
                </button>
+               <button
+                 onClick={() => setCurrentView('real-map-gis')}
+                 className={`px-4 py-1 rounded-md font-medium transition-colors text-sm ${
+                   currentView === 'real-map-gis'
+                     ? 'bg-red-600 text-white'
+                     : 'text-gray-600 hover:text-red-600'
+                 }`}
+               >
+                 خريطة حقيقية + GIS
+               </button>
           </div>
         </div>
       </div>
@@ -294,7 +305,7 @@ export default function App() {
             />
           )}
         </div>
-      ) : (
+      ) : currentView === 'real-qgis' ? (
         /* Real QGIS View */
         <div className="flex-1 pt-12 h-screen">
           <RealQGISViewer 
@@ -303,6 +314,18 @@ export default function App() {
             }}
             onParcelSelect={(parcel) => {
               console.log('تم تحديد قطعة أرض حقيقية:', parcel)
+            }}
+          />
+        </div>
+      ) : (
+        /* Real Map with GIS View */
+        <div className="flex-1 pt-12 h-screen">
+          <RealMapWithGIS 
+            onBuildingSelect={(building) => {
+              console.log('تم تحديد مبنى حقيقي على الخريطة:', building)
+            }}
+            onParcelSelect={(parcel) => {
+              console.log('تم تحديد قطعة أرض حقيقية على الخريطة:', parcel)
             }}
           />
         </div>

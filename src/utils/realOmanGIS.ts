@@ -248,7 +248,7 @@ function processOSMBuildings(elements: any[]): RealBuilding[] {
       id: `real_building_${element.id || index}`,
       type: determineBuildingType(tags),
       name: tags.name || tags['name:ar'] || undefined,
-      address: tags.addr:full || tags.addr:street || undefined,
+      address: tags['addr:full'] || tags['addr:street'] || undefined,
       coordinates,
       area: calculateArea(element),
       floors: parseInt(tags['building:levels']) || undefined,
