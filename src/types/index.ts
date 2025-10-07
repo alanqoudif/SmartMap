@@ -2,6 +2,7 @@ export interface House {
   id: string
   houseNo: number
   plotNo: number
+  area: string
   x: number
   y: number
   areaM2: number
@@ -12,11 +13,22 @@ export interface House {
 
 export interface MapElement {
   id: string
-  type: 'wall' | 'path' | 'door' | 'kiosk' | 'plot'
+  type: 'wall' | 'path' | 'door' | 'kiosk' | 'plot' | 'water'
   points?: [number, number][]
   rect?: { x: number; y: number; width: number; height: number }
   direction?: 'north' | 'south' | 'east' | 'west'
   color?: string
+}
+
+export interface WaterFeature {
+  id: string
+  name: string
+  type: 'sea' | 'lake' | 'river' | 'pond' | 'fountain'
+  coordinates: [number, number][]
+  lat?: number
+  lng?: number
+  area?: number
+  description?: string
 }
 
 export interface UserMap {
@@ -25,7 +37,7 @@ export interface UserMap {
   houseNotes: Record<string, string>
 }
 
-export type DrawingTool = 'select' | 'wall' | 'path' | 'door' | 'kiosk' | 'plot' | 'delete'
+export type DrawingTool = 'select' | 'wall' | 'path' | 'door' | 'kiosk' | 'plot' | 'water' | 'delete'
 
 export interface MapState {
   zoom: number

@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react'
-import { House } from '../../types'
-import { GOOGLE_MAPS_CONFIG, mapUtils, ERROR_MESSAGES } from '../../config/googleMaps'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { House, WaterFeature } from '../../types'
+import { GOOGLE_MAPS_CONFIG, mapUtils } from '../../config/googleMaps'
+import WaterLayer from '../WaterLayer/WaterLayer'
 
 // إعلان Google Maps types
 declare global {
@@ -15,9 +16,11 @@ interface GoogleMapProps {
   onHouseSelect: (house: House) => void
   onMapClick: (lat: number, lng: number) => void
   selectedHouse: House | null
+  waterFeatures?: WaterFeature[]
+  showWater?: boolean
 }
 
-export default function GoogleMap({ houses, onHouseSelect, onMapClick, selectedHouse }: GoogleMapProps) {
+export default function GoogleMap({ houses, onHouseSelect, onMapClick, selectedHouse, waterFeatures = [], showWater = true }: GoogleMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
   const markersRef = useRef<any[]>([])
@@ -124,7 +127,7 @@ export default function GoogleMap({ houses, onHouseSelect, onMapClick, selectedH
 
     return () => {
       if (window.initMap === initializeMap) {
-        delete window.initMap
+        delete (window as any).initMap
       }
     }
   }, [initializeMap])
@@ -152,11 +155,21 @@ export default function GoogleMap({ houses, onHouseSelect, onMapClick, selectedH
     <div className="relative w-full h-full">
       <div ref={mapRef} className="w-full h-full" />
       
+      {/* طبقة الماء */}
+      {isMapLoaded && mapInstanceRef.current && (
+        <WaterLayer 
+          waterFeatures={waterFeatures}
+          mapInstance={mapInstanceRef.current}
+          isVisible={showWater}
+        />
+      )}
+      
       {/* شريط التحكم */}
       <div className="absolute top-4 left-4 bg-white p-3 rounded-lg shadow-lg">
         <h3 className="text-sm font-semibold text-gray-700 mb-2">منطقة السلطان قابوس</h3>
         <div className="text-xs text-gray-600">
           <p>إجمالي البيوت: {houses.length}</p>
+          <p>المعالم المائية: {waterFeatures.length}</p>
           <p>انقر على الخريطة لإضافة بيت جديد</p>
         </div>
       </div>

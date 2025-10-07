@@ -6,6 +6,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>عُنْوَنِي - خريطة العناوين التفاعلية</title>
     <script src="https://unpkg.com/@heroicons/react@2.0.18/24/outline/index.js" type="module"></script>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Custom CSS for Leaflet Popups -->
+    <style>
+      .leaflet-popup {
+        z-index: 999999 !important;
+        position: relative !important;
+      }
+      .leaflet-popup-content-wrapper {
+        z-index: 999999 !important;
+        position: relative !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+        border-radius: 8px !important;
+      }
+      .leaflet-popup-content {
+        z-index: 999999 !important;
+        position: relative !important;
+        margin: 0 !important;
+        border-radius: 8px !important;
+      }
+      .leaflet-popup-tip {
+        z-index: 999999 !important;
+        position: relative !important;
+      }
+      .leaflet-popup-pane {
+        z-index: 999999 !important;
+        position: relative !important;
+      }
+      .leaflet-popup-close-button {
+        z-index: 1000000 !important;
+        position: relative !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+        color: #666 !important;
+      }
+      .custom-house-popup {
+        z-index: 999999 !important;
+      }
+      .custom-house-popup .leaflet-popup-content-wrapper {
+        z-index: 999999 !important;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.4) !important;
+        border: 2px solid #4285f4 !important;
+      }
+    </style>
     <!-- Google Maps API - Uncomment and add your API key -->
     <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=geometry&callback=initMap"></script> -->
   </head>

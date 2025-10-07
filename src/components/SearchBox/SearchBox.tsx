@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { House } from '../../types'
-import omanHouses from '../../data/oman-houses.json'
+import muscatHouses from '../../data/muscat-houses-complete.json'
 
 interface SearchBoxProps {
   onHouseSelect: (house: House) => void
@@ -11,7 +11,7 @@ export default function SearchBox({ onHouseSelect }: SearchBoxProps) {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
 
-  const houses = omanHouses as House[]
+  const houses = muscatHouses as House[]
 
   const filteredHouses = useMemo(() => {
     if (!searchTerm.trim()) return []
@@ -19,8 +19,9 @@ export default function SearchBox({ onHouseSelect }: SearchBoxProps) {
     return houses.filter(house => 
       house.houseNo.toString().includes(searchTerm) ||
       house.plotNo.toString().includes(searchTerm) ||
+      house.area.includes(searchTerm) ||
       house.id.includes(searchTerm)
-    ).slice(0, 5) // Limit to 5 suggestions
+    ).slice(0, 8) // Limit to 8 suggestions
   }, [searchTerm])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,7 +90,7 @@ export default function SearchBox({ onHouseSelect }: SearchBoxProps) {
           onKeyDown={handleKeyDown}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
-          placeholder="ابحث عن عنوان (مثال: 45 أو 102)"
+          placeholder="ابحث عن عنوان (مثال: 1 أو القرم أو مطرح)"
           className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-right"
         />
         <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
@@ -118,7 +119,7 @@ export default function SearchBox({ onHouseSelect }: SearchBoxProps) {
                 </div>
               </div>
               <div className="text-xs text-gray-400 mt-1">
-                {house.areaM2} م² • {house.rooms} غرف
+                {house.area} • {house.areaM2} م² • {house.rooms} غرف
               </div>
             </button>
           ))}

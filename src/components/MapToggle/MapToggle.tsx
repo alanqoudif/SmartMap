@@ -1,8 +1,7 @@
-import React from 'react'
 
 interface MapToggleProps {
-  mapType: 'canvas' | 'google'
-  onMapTypeChange: (type: 'canvas' | 'google') => void
+  mapType: 'canvas' | 'google' | 'osm'
+  onMapTypeChange: (type: 'canvas' | 'google' | 'osm') => void
 }
 
 export default function MapToggle({ mapType, onMapTypeChange }: MapToggleProps) {
@@ -28,6 +27,16 @@ export default function MapToggle({ mapType, onMapTypeChange }: MapToggleProps) 
           }`}
         >
           خريطة Google
+        </button>
+        <button
+          onClick={() => onMapTypeChange('osm')}
+          className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+            mapType === 'osm'
+              ? 'bg-green-500 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          خريطة مجانية
         </button>
       </div>
     </div>

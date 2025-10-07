@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react'
-import { MapState, MapElement, DrawingTool } from '../../types'
+import { useRef, useEffect, useState, useCallback } from 'react'
+import { MapState, MapElement } from '../../types'
 import { useGridSnap } from '../../hooks/useGridSnap'
 
 interface MapCanvasProps {
@@ -15,8 +15,6 @@ export default function MapCanvas({
   mapState,
   elements,
   onElementAdd,
-  onElementUpdate,
-  onElementDelete,
   onMapStateUpdate
 }: MapCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -168,16 +166,16 @@ export default function MapCanvas({
       setCurrentRect({ x: snappedPoint.x, y: snappedPoint.y, width: 0, height: 0 })
     } else if (mapState.selectedTool === 'wall' || mapState.selectedTool === 'path') {
       if (!mapState.isDrawing) {
-        onMapStateUpdate({ isDrawing: true, currentPath: [snappedPoint] })
+        onMapStateUpdate({ isDrawing: true, currentPath: [[snappedPoint.x, snappedPoint.y] as [number, number]] })
       } else {
-        const newPath = [...mapState.currentPath, snappedPoint]
+        const newPath = [...mapState.currentPath, [snappedPoint.x, snappedPoint.y] as [number, number]]
         onMapStateUpdate({ currentPath: newPath })
       }
     } else if (mapState.selectedTool === 'door' || mapState.selectedTool === 'kiosk') {
       const element: MapElement = {
         id: `${mapState.selectedTool}-${Date.now()}`,
         type: mapState.selectedTool,
-        points: [snappedPoint]
+        points: [[snappedPoint.x, snappedPoint.y] as [number, number]]
       }
       onElementAdd(element)
     }
