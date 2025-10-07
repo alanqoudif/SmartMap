@@ -3,6 +3,7 @@ import { IDCard, IDCardData, createNewIDCard } from '../IDCard/IDCard'
 import { IDSearch } from '../IDSearch/IDSearch'
 import { assignHouseToID } from '../../utils/idHouseMapping'
 import { House } from '../../types'
+import IDCardPreview from '../IDCardPreview/IDCardPreview'
 
 interface IDSystemProps {
   onHouseSelect?: (house: House) => void
@@ -15,6 +16,7 @@ export function IDSystem({ onHouseSelect }: IDSystemProps) {
   const [name, setName] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [showPreview, setShowPreview] = useState(false)
 
   const handleGenerateID = async () => {
     if (!name.trim()) {
@@ -65,7 +67,7 @@ export function IDSystem({ onHouseSelect }: IDSystemProps) {
     }
   }
 
-  const handleHouseFound = (house: House) => {
+  const handleHouseFound = (house: House, mapping: any) => {
     setSuccess(`تم العثور على المنزل! ${house.area} - رقم ${house.houseNo}`)
     onHouseSelect?.(house)
   }
@@ -80,8 +82,8 @@ export function IDSystem({ onHouseSelect }: IDSystemProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
-      <div className="container mx-auto px-4">
+    <div className="h-full bg-gradient-to-br from-blue-50 to-indigo-100 py-4 overflow-y-auto">
+      <div className="container mx-auto px-4 max-w-4xl">
         {/* العنوان الرئيسي */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
@@ -153,10 +155,10 @@ export function IDSystem({ onHouseSelect }: IDSystemProps) {
 
         {/* المحتوى الرئيسي */}
         {currentView === 'generator' && (
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto pb-8">
             {!currentIDCard ? (
               /* نموذج إنشاء البطاقة */
-              <div className="bg-white rounded-lg shadow-lg p-8">
+              <div className="bg-white rounded-lg shadow-lg p-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
                   إنشاء بطاقة هوية جديدة
                 </h2>
@@ -169,7 +171,12 @@ export function IDSystem({ onHouseSelect }: IDSystemProps) {
                     id="name"
                     type="text"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                      setName(e.target.value)
+                      setShowPreview(e.target.value.trim().length > 0)
+                    }}
+                    onFocus={() => setShowPreview(name.trim().length > 0)}
+                    onBlur={() => setShowPreview(false)}
                     placeholder="أدخل الاسم الكامل"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right"
                     dir="rtl"
@@ -186,15 +193,19 @@ export function IDSystem({ onHouseSelect }: IDSystemProps) {
               </div>
             ) : (
               /* عرض البطاقة المنشأة */
-              <IDCard
-                data={currentIDCard}
-                onGenerateNew={() => {
-                  setCurrentIDCard(null)
-                  setName('')
-                  clearMessages()
-                }}
-                onSearchByID={handleAssignHouse}
-              />
+              <div className="space-y-4">
+                <IDCard
+                  data={currentIDCard}
+                  onGenerateNew={() => {
+                    setCurrentIDCard(null)
+                    setName('')
+                    clearMessages()
+                  }}
+                  onSearchByID={handleAssignHouse}
+                />
+                {/* مساحة إضافية لضمان رؤية الأزرار */}
+                <div className="h-8"></div>
+              </div>
             )}
           </div>
         )}
@@ -208,6 +219,9 @@ export function IDSystem({ onHouseSelect }: IDSystemProps) {
           </div>
         )}
       </div>
+
+      {/* معاينة البطاقة المباشرة */}
+      <IDCardPreview name={name} isVisible={showPreview} />
     </div>
   )
 }

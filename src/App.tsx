@@ -4,6 +4,12 @@ import ToolBar from './components/ToolBar/ToolBar'
 import SearchBox from './components/SearchBox/SearchBox'
 import HouseViewer from './components/HouseViewer/HouseViewer'
 import { IDSystem } from './components/IDSystem/IDSystem'
+import VirtualMap from './components/VirtualMap/VirtualMap'
+import HousePopup from './components/HousePopup/HousePopup'
+import QGISViewer from './components/QGISViewer/QGISViewer'
+import RealQGISViewer from './components/RealQGISViewer/RealQGISViewer'
+import QGISLayerManager from './components/QGISLayerManager/QGISLayerManager'
+import CitySelector from './components/CitySelector/CitySelector'
 import { MapState, DrawingTool, House, WaterFeature } from './types'
 import { BuildingData } from './utils/overpassAPI'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
@@ -26,7 +32,12 @@ export default function App() {
   const [isHouseViewerOpen, setIsHouseViewerOpen] = useState(false)
   // إزالة mapType - سنستخدم OpenStreetMap فقط
   const [showBuildings, setShowBuildings] = useState(true)
-  const [currentView, setCurrentView] = useState<'map' | 'id-system'>('map')
+  const [currentView, setCurrentView] = useState<'map' | 'id-system' | 'qgis' | 'real-qgis'>('map')
+  const [selectedCity, setSelectedCity] = useState('muscat-sultan-qaboos')
+  const [mapViewMode, setMapViewMode] = useState<'real' | 'virtual' | 'qgis'>('real')
+  const [showHousePopup, setShowHousePopup] = useState(false)
+  const [popupHouse, setPopupHouse] = useState<House | null>(null)
+  const [showQGISLayerManager, setShowQGISLayerManager] = useState(false)
   const houses = muscatHouses as House[]
   const waterFeatures = muscatWater as WaterFeature[]
 
@@ -43,7 +54,8 @@ export default function App() {
 
   const handleHouseSelect = useCallback((house: House) => {
     setSelectedHouse(house)
-    setIsHouseViewerOpen(true)
+    setPopupHouse(house)
+    setShowHousePopup(true)
     
     // يمكن إضافة منطق للانتقال إلى موقع المنزل هنا لاحقاً
   }, [])
@@ -93,8 +105,30 @@ export default function App() {
 
   const handleIDSystemHouseSelect = useCallback((house: House) => {
     setSelectedHouse(house)
-    setIsHouseViewerOpen(true)
+    setPopupHouse(house)
+    setShowHousePopup(true)
     setCurrentView('map') // العودة إلى الخريطة
+  }, [])
+
+  const handleCitySelect = useCallback((cityId: string) => {
+    if (cityId === 'virtual-view') {
+      setMapViewMode('virtual')
+    } else if (cityId === 'real-map') {
+      setMapViewMode('real')
+    } else {
+      setSelectedCity(cityId)
+    }
+  }, [])
+
+  const handleCloseHousePopup = useCallback(() => {
+    setShowHousePopup(false)
+    setPopupHouse(null)
+  }, [])
+
+  const handleViewHouse = useCallback(() => {
+    setShowHousePopup(false)
+    setPopupHouse(null)
+    setIsHouseViewerOpen(true)
   }, [])
 
   // Keyboard shortcuts
@@ -107,12 +141,12 @@ export default function App() {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Navigation Header */}
-      <div className="absolute top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 p-4">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 p-2">
         <div className="flex justify-center">
           <div className="bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setCurrentView('map')}
-              className={`px-6 py-2 rounded-md font-medium transition-colors ${
+              className={`px-4 py-1 rounded-md font-medium transition-colors text-sm ${
                 currentView === 'map'
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-600 hover:text-blue-600'
@@ -120,16 +154,36 @@ export default function App() {
             >
               الخريطة الذكية
             </button>
-            <button
-              onClick={() => setCurrentView('id-system')}
-              className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                currentView === 'id-system'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 hover:text-blue-600'
-              }`}
-            >
-              نظام البطاقة الشخصية
-            </button>
+               <button
+                 onClick={() => setCurrentView('id-system')}
+                 className={`px-4 py-1 rounded-md font-medium transition-colors text-sm ${
+                   currentView === 'id-system'
+                     ? 'bg-blue-600 text-white'
+                     : 'text-gray-600 hover:text-blue-600'
+                 }`}
+               >
+                 نظام البطاقة الشخصية
+               </button>
+               <button
+                 onClick={() => setCurrentView('qgis')}
+                 className={`px-4 py-1 rounded-md font-medium transition-colors text-sm ${
+                   currentView === 'qgis'
+                     ? 'bg-green-600 text-white'
+                     : 'text-gray-600 hover:text-green-600'
+                 }`}
+               >
+                 QGIS
+               </button>
+               <button
+                 onClick={() => setCurrentView('real-qgis')}
+                 className={`px-4 py-1 rounded-md font-medium transition-colors text-sm ${
+                   currentView === 'real-qgis'
+                     ? 'bg-purple-600 text-white'
+                     : 'text-gray-600 hover:text-purple-600'
+                 }`}
+               >
+                 GIS الحقيقي
+               </button>
           </div>
         </div>
       </div>
@@ -137,37 +191,40 @@ export default function App() {
       {/* Main Content */}
       {currentView === 'map' ? (
         <>
-          {/* Toolbar - Hidden on mobile */}
-          <div className="hidden md:block mt-16">
-            <ToolBar
-              selectedTool={mapState.selectedTool}
-              onToolSelect={handleToolSelect}
-              onExport={handleExport}
-              onClear={handleClear}
-              showBuildings={showBuildings}
-              onToggleBuildings={handleToggleBuildings}
+          {/* City Selector - Hidden on mobile */}
+          <div className="hidden md:block pt-12">
+            <CitySelector
+              onCitySelect={handleCitySelect}
+              selectedCity={mapViewMode === 'virtual' ? 'virtual-view' : mapViewMode === 'real' ? 'real-map' : selectedCity}
             />
           </div>
 
           {/* Map Content */}
-          <div className="flex-1 flex flex-col mt-16">
+          <div className="flex-1 flex flex-col pt-12 overflow-hidden">
             {/* Search Bar */}
-            <div className="bg-white border-b border-gray-200 p-4">
+            <div className="bg-white border-b border-gray-200 p-4 flex-shrink-0">
               <SearchBox onHouseSelect={handleHouseSelect} />
             </div>
 
             {/* Map Container */}
-            <div id="map-container" className="flex-1 relative">
-              {/* OpenStreetMap - الخريطة الوحيدة */}
-              <OpenStreetMap
-                houses={houses}
-                onHouseSelect={handleHouseSelect}
-                onMapClick={handleMapClick}
-                selectedHouse={selectedHouse}
-                waterFeatures={waterFeatures}
-                showBuildings={showBuildings}
-                onBuildingSelect={handleBuildingSelect}
-              />
+            <div id="map-container" className="flex-1 relative overflow-hidden">
+              {mapViewMode === 'virtual' ? (
+                <VirtualMap
+                  houses={houses}
+                  onHouseSelect={handleHouseSelect}
+                  selectedHouse={selectedHouse}
+                />
+              ) : (
+                <OpenStreetMap
+                  houses={houses}
+                  onHouseSelect={handleHouseSelect}
+                  onMapClick={handleMapClick}
+                  selectedHouse={selectedHouse}
+                  waterFeatures={waterFeatures}
+                  showBuildings={showBuildings}
+                  onBuildingSelect={handleBuildingSelect}
+                />
+              )}
             </div>
 
             {/* Mobile Toolbar */}
@@ -213,10 +270,41 @@ export default function App() {
             </div>
           </div>
         </>
-      ) : (
+      ) : currentView === 'id-system' ? (
         /* ID System View */
-        <div className="flex-1 mt-16">
+        <div className="flex-1 pt-12">
           <IDSystem onHouseSelect={handleIDSystemHouseSelect} />
+        </div>
+      ) : currentView === 'qgis' ? (
+        /* QGIS View */
+        <div className="flex-1 pt-12 h-screen flex">
+          <div className="flex-1">
+            <QGISViewer 
+              houses={houses}
+              onHouseSelect={handleHouseSelect}
+              selectedHouse={selectedHouse}
+              onToggleLayerManager={() => setShowQGISLayerManager(!showQGISLayerManager)}
+            />
+          </div>
+          {showQGISLayerManager && (
+            <QGISLayerManager 
+              project={{} as any} // سيتم تمرير المشروع الفعلي
+              onLayerUpdate={() => {}}
+              onLayerSelect={() => {}}
+            />
+          )}
+        </div>
+      ) : (
+        /* Real QGIS View */
+        <div className="flex-1 pt-12 h-screen">
+          <RealQGISViewer 
+            onBuildingSelect={(building) => {
+              console.log('تم تحديد مبنى حقيقي:', building)
+            }}
+            onParcelSelect={(parcel) => {
+              console.log('تم تحديد قطعة أرض حقيقية:', parcel)
+            }}
+          />
         </div>
       )}
 
@@ -225,6 +313,14 @@ export default function App() {
         house={selectedHouse}
         isOpen={isHouseViewerOpen}
         onClose={handleCloseHouseViewer}
+      />
+
+      {/* House Popup */}
+      <HousePopup
+        house={popupHouse}
+        isOpen={showHousePopup}
+        onClose={handleCloseHousePopup}
+        onViewHouse={handleViewHouse}
       />
     </div>
   )
