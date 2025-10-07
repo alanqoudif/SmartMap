@@ -9,6 +9,8 @@ import HousePopup from './components/HousePopup/HousePopup'
 import QGISViewer from './components/QGISViewer/QGISViewer'
 import RealQGISViewer from './components/RealQGISViewer/RealQGISViewer'
 import RealMapWithGIS from './components/RealMapWithGIS/RealMapWithGIS'
+import FastRealMapGIS from './components/FastRealMapGIS/FastRealMapGIS'
+import SmartMapWithQGIS from './components/SmartMapWithQGIS/SmartMapWithQGIS'
 import QGISLayerManager from './components/QGISLayerManager/QGISLayerManager'
 import CitySelector from './components/CitySelector/CitySelector'
 import { MapState, DrawingTool, House, WaterFeature } from './types'
@@ -33,7 +35,7 @@ export default function App() {
   const [isHouseViewerOpen, setIsHouseViewerOpen] = useState(false)
   // إزالة mapType - سنستخدم OpenStreetMap فقط
   const [showBuildings, setShowBuildings] = useState(true)
-  const [currentView, setCurrentView] = useState<'map' | 'id-system' | 'qgis' | 'real-qgis' | 'real-map-gis'>('map')
+  const [currentView, setCurrentView] = useState<'map' | 'id-system' | 'qgis' | 'real-qgis' | 'real-map-gis' | 'fast-real-map-gis' | 'smart-map-qgis'>('map')
   const [selectedCity, setSelectedCity] = useState('muscat-sultan-qaboos')
   const [mapViewMode, setMapViewMode] = useState<'real' | 'virtual' | 'qgis'>('real')
   const [showHousePopup, setShowHousePopup] = useState(false)
@@ -195,6 +197,26 @@ export default function App() {
                >
                  خريطة حقيقية + GIS
                </button>
+               <button
+                 onClick={() => setCurrentView('fast-real-map-gis')}
+                 className={`px-4 py-1 rounded-md font-medium transition-colors text-sm ${
+                   currentView === 'fast-real-map-gis'
+                     ? 'bg-orange-600 text-white'
+                     : 'text-gray-600 hover:text-orange-600'
+                 }`}
+               >
+                 خريطة سريعة + QGIS
+               </button>
+               <button
+                 onClick={() => setCurrentView('smart-map-qgis')}
+                 className={`px-4 py-1 rounded-md font-medium transition-colors text-sm ${
+                   currentView === 'smart-map-qgis'
+                     ? 'bg-teal-600 text-white'
+                     : 'text-gray-600 hover:text-teal-600'
+                 }`}
+               >
+                 الخريطة الذكية + QGIS
+               </button>
           </div>
         </div>
       </div>
@@ -317,7 +339,7 @@ export default function App() {
             }}
           />
         </div>
-      ) : (
+      ) : currentView === 'real-map-gis' ? (
         /* Real Map with GIS View */
         <div className="flex-1 pt-12 h-screen">
           <RealMapWithGIS 
@@ -327,6 +349,27 @@ export default function App() {
             onParcelSelect={(parcel) => {
               console.log('تم تحديد قطعة أرض حقيقية على الخريطة:', parcel)
             }}
+          />
+        </div>
+      ) : currentView === 'fast-real-map-gis' ? (
+        /* Fast Real Map with QGIS View */
+        <div className="flex-1 pt-12 h-screen">
+          <FastRealMapGIS 
+            onBuildingSelect={(building) => {
+              console.log('تم تحديد مبنى QGIS على الخريطة السريعة:', building)
+            }}
+            onParcelSelect={(parcel) => {
+              console.log('تم تحديد قطعة أرض QGIS على الخريطة السريعة:', parcel)
+            }}
+          />
+        </div>
+      ) : (
+        /* Smart Map with QGIS View */
+        <div className="flex-1 pt-12 h-screen">
+          <SmartMapWithQGIS 
+            houses={houses}
+            onHouseSelect={handleHouseSelect}
+            selectedHouse={selectedHouse}
           />
         </div>
       )}
