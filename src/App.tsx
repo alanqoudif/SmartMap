@@ -256,6 +256,7 @@ export default function App() {
                   waterFeatures={waterFeatures}
                   showBuildings={showBuildings}
                   onBuildingSelect={handleBuildingSelect}
+                  showInformationOverlay={true}
                 />
               )}
             </div>

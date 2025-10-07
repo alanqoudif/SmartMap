@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import L from 'leaflet'
 import { House, WaterFeature } from '../../types'
 import BuildingLayer from '../BuildingLayer/BuildingLayer'
+import InformationOverlay from '../InformationOverlay/InformationOverlay'
 import { BuildingData } from '../../utils/overpassAPI'
 
 // إصلاح أيقونات Leaflet
@@ -20,6 +21,7 @@ interface OpenStreetMapProps {
   waterFeatures?: WaterFeature[]
   showBuildings?: boolean
   onBuildingSelect?: (building: BuildingData) => void
+  showInformationOverlay?: boolean
 }
 
 export default function OpenStreetMap({ 
@@ -29,13 +31,15 @@ export default function OpenStreetMap({
   selectedHouse, 
   waterFeatures = [], 
   showBuildings = true, 
-  onBuildingSelect 
+  onBuildingSelect,
+  showInformationOverlay = false
 }: OpenStreetMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<L.Map | null>(null)
   const markersRef = useRef<L.Marker[]>([])
   const waterLayersRef = useRef<L.Layer[]>([])
   const [isMapLoaded, setIsMapLoaded] = useState(false)
+  const [showOverlay, setShowOverlay] = useState(showInformationOverlay)
 
   // تحويل الإحداثيات الافتراضية إلى إحداثيات حقيقية
   const convertToRealCoordinates = useCallback((x: number, y: number) => {
@@ -396,6 +400,18 @@ export default function OpenStreetMap({
           <p>انقر على الخريطة لإضافة بيت جديد</p>
           <p className="text-green-600 font-semibold">خريطة OpenStreetMap - مجانية</p>
         </div>
+        
+        {/* زر إظهار/إخفاء طبقة المعلومات */}
+        <button
+          onClick={() => setShowOverlay(!showOverlay)}
+          className={`mt-3 px-3 py-1 rounded text-xs font-medium transition-colors ${
+            showOverlay 
+              ? 'bg-blue-600 text-white hover:bg-blue-700' 
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          {showOverlay ? 'إخفاء المعلومات' : 'إظهار المعلومات'}
+        </button>
       </div>
 
       {/* مؤشر التحميل */}
@@ -406,6 +422,17 @@ export default function OpenStreetMap({
             <p className="text-gray-600">جاري تحميل الخريطة...</p>
           </div>
         </div>
+      )}
+
+      {/* طبقة المعلومات */}
+      {isMapLoaded && (
+        <InformationOverlay
+          houses={houses}
+          selectedHouse={selectedHouse}
+          onHouseSelect={onHouseSelect}
+          isVisible={showOverlay}
+          onToggleVisibility={() => setShowOverlay(!showOverlay)}
+        />
       )}
     </div>
   )
