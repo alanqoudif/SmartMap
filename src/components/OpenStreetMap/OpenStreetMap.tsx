@@ -18,7 +18,6 @@ interface OpenStreetMapProps {
   onMapClick: (lat: number, lng: number) => void
   selectedHouse: House | null
   waterFeatures?: WaterFeature[]
-  showWater?: boolean
   showBuildings?: boolean
   onBuildingSelect?: (building: BuildingData) => void
 }
@@ -29,9 +28,8 @@ export default function OpenStreetMap({
   onMapClick, 
   selectedHouse, 
   waterFeatures = [], 
-  showWater = true,
-  showBuildings = true,
-  onBuildingSelect
+  showBuildings = true, 
+  onBuildingSelect 
 }: OpenStreetMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<L.Map | null>(null)
@@ -165,7 +163,6 @@ export default function OpenStreetMap({
     })
     waterLayersRef.current = []
 
-    if (!showWater) return
 
     // إضافة طبقات الماء
     waterFeatures.forEach(waterFeature => {
@@ -267,7 +264,7 @@ export default function OpenStreetMap({
       })
       waterLayersRef.current = []
     }
-  }, [waterFeatures, isMapLoaded, showWater])
+  }, [waterFeatures, isMapLoaded])
 
   // إضافة دالة عامة لاختيار المنزل
   useEffect(() => {
@@ -394,7 +391,6 @@ export default function OpenStreetMap({
         <h3 className="text-sm font-semibold text-gray-700 mb-2">مدينة مسقط</h3>
         <div className="text-xs text-gray-600">
           <p>إجمالي البيوت: {houses.length}</p>
-          <p>المعالم المائية: {waterFeatures.length}</p>
           <p>المناطق: {new Set(houses.map(h => h.area)).size}</p>
           <p>المباني الحقيقية: {showBuildings ? 'مُحمّلة من OpenStreetMap' : 'مخفية'}</p>
           <p>انقر على الخريطة لإضافة بيت جديد</p>

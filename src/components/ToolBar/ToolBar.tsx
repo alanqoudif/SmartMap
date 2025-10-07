@@ -5,8 +5,6 @@ interface ToolBarProps {
   onToolSelect: (tool: DrawingTool) => void
   onExport: () => void
   onClear: () => void
-  showWater: boolean
-  onToggleWater: () => void
   showBuildings: boolean
   onToggleBuildings: () => void
 }
@@ -22,7 +20,7 @@ const tools: { tool: DrawingTool; label: string; icon: string; color: string }[]
   { tool: 'delete', label: 'حذف', icon: '✕', color: 'bg-red-500' }
 ]
 
-export default function ToolBar({ selectedTool, onToolSelect, onExport, onClear, showWater, onToggleWater, showBuildings, onToggleBuildings }: ToolBarProps) {
+export default function ToolBar({ selectedTool, onToolSelect, onExport, onClear, showBuildings, onToggleBuildings }: ToolBarProps) {
   return (
     <div className="w-60 h-full bg-white border-l border-gray-200 flex flex-col">
       {/* Header */}
@@ -56,17 +54,6 @@ export default function ToolBar({ selectedTool, onToolSelect, onExport, onClear,
 
       {/* Actions */}
       <div className="p-4 border-t border-gray-200 space-y-2">
-        <button
-          onClick={onToggleWater}
-          className={`w-full py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 ${
-            showWater 
-              ? 'bg-cyan-500 hover:bg-cyan-600 text-white' 
-              : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
-          }`}
-        >
-          <span>💧</span>
-          <span>{showWater ? 'إخفاء الماء' : 'إظهار الماء'}</span>
-        </button>
         <button
           onClick={onToggleBuildings}
           className={`w-full py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 ${

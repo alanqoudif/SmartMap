@@ -25,7 +25,6 @@ export default function App() {
   const [selectedHouse, setSelectedHouse] = useState<House | null>(null)
   const [isHouseViewerOpen, setIsHouseViewerOpen] = useState(false)
   // إزالة mapType - سنستخدم OpenStreetMap فقط
-  const [showWater, setShowWater] = useState(true)
   const [showBuildings, setShowBuildings] = useState(true)
   const [currentView, setCurrentView] = useState<'map' | 'id-system'>('map')
   const houses = muscatHouses as House[]
@@ -83,9 +82,6 @@ export default function App() {
     setSelectedHouse(null)
   }, [])
 
-  const handleToggleWater = useCallback(() => {
-    setShowWater(prev => !prev)
-  }, [])
 
   const handleToggleBuildings = useCallback(() => {
     setShowBuildings(prev => !prev)
@@ -148,8 +144,6 @@ export default function App() {
               onToolSelect={handleToolSelect}
               onExport={handleExport}
               onClear={handleClear}
-              showWater={showWater}
-              onToggleWater={handleToggleWater}
               showBuildings={showBuildings}
               onToggleBuildings={handleToggleBuildings}
             />
@@ -171,7 +165,6 @@ export default function App() {
                 onMapClick={handleMapClick}
                 selectedHouse={selectedHouse}
                 waterFeatures={waterFeatures}
-                showWater={showWater}
                 showBuildings={showBuildings}
                 onBuildingSelect={handleBuildingSelect}
               />
@@ -209,12 +202,6 @@ export default function App() {
                   className={`p-2 rounded ${mapState.selectedTool === 'water' ? 'bg-blue-100' : 'bg-gray-100'}`}
                 >
                   💧
-                </button>
-                <button
-                  onClick={handleToggleWater}
-                  className={`p-2 rounded ${showWater ? 'bg-cyan-100' : 'bg-gray-100'}`}
-                >
-                  {showWater ? '💧' : '🚫'}
                 </button>
                 <button
                   onClick={handleExport}
