@@ -29,8 +29,8 @@ export default function QGISViewer({ houses, onHouseSelect, selectedHouse, onTog
     'oman_houses_layer'
   ])
   // const [selectedLayer, setSelectedLayer] = useState<string>('oman_buildings_layer')
-  const [showOmanWide, setShowOmanWide] = useState(true) // عرض شامل للسلطنة
-  const [zoom, setZoom] = useState(0.15) // تكبير محسن لعرض أفضل
+  const [showOmanWide, setShowOmanWide] = useState(false) // عرض محلي لمسقط
+  const [zoom, setZoom] = useState(1.5) // تكبير محسن لمسقط
   const [panX, setPanX] = useState(0)
   const [panY, setPanY] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
@@ -922,7 +922,7 @@ export default function QGISViewer({ houses, onHouseSelect, selectedHouse, onTog
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault()
     const delta = e.deltaY > 0 ? 0.9 : 1.1
-    setZoom(prev => Math.max(0.5, Math.min(3, prev * delta)))
+    setZoom(prev => Math.max(0.1, Math.min(10, prev * delta))) // تكبير أكثر مرونة
   }
 
   // تبديل طبقة
@@ -1072,7 +1072,12 @@ export default function QGISViewer({ houses, onHouseSelect, selectedHouse, onTog
               id="oman-wide"
               name="view-mode"
               checked={showOmanWide}
-              onChange={() => setShowOmanWide(true)}
+              onChange={() => {
+                setShowOmanWide(true)
+                setZoom(0.15)
+                setPanX(0)
+                setPanY(0)
+              }}
               className="rounded"
             />
             <label htmlFor="oman-wide" className="text-sm text-gray-700">عرض شامل للسلطنة</label>
@@ -1083,10 +1088,15 @@ export default function QGISViewer({ houses, onHouseSelect, selectedHouse, onTog
               id="local-view"
               name="view-mode"
               checked={!showOmanWide}
-              onChange={() => setShowOmanWide(false)}
+              onChange={() => {
+                setShowOmanWide(false)
+                setZoom(1.5)
+                setPanX(0)
+                setPanY(0)
+              }}
               className="rounded"
             />
-            <label htmlFor="local-view" className="text-sm text-gray-700">عرض محلي</label>
+            <label htmlFor="local-view" className="text-sm text-gray-700">عرض مسقط (مُوصى به)</label>
           </div>
         </div>
         
@@ -1163,14 +1173,15 @@ export default function QGISViewer({ houses, onHouseSelect, selectedHouse, onTog
           
           <button
             onClick={() => {
-              setZoom(showOmanWide ? 0.15 : 1)
+              setZoom(1.5) // تكبير محسن لمسقط
               setPanX(0)
               setPanY(0)
               setSelectedFeature(null)
+              setShowOmanWide(false) // التأكد من عرض مسقط
             }}
             className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-3 rounded text-sm flex items-center justify-center gap-1"
           >
-            🏠 العودة للصفحة الرئيسية
+            🏠 العودة لمسقط
           </button>
           
           {onToggleLayerManager && (
@@ -1184,19 +1195,32 @@ export default function QGISViewer({ houses, onHouseSelect, selectedHouse, onTog
         </div>
       </div>
 
-      {/* أزرار التكبير */}
+      {/* أزرار التكبير المحسنة */}
       <div className="absolute top-4 left-4 flex flex-col gap-2">
         <button
-          onClick={() => setZoom(prev => Math.min(3, prev * 1.2))}
+          onClick={() => setZoom(prev => Math.min(10, prev * 1.3))}
           className="bg-white border border-gray-300 rounded-lg p-2 shadow-lg hover:bg-gray-50"
+          title="تكبير أكثر"
         >
           +
         </button>
         <button
-          onClick={() => setZoom(prev => Math.max(0.5, prev * 0.8))}
+          onClick={() => setZoom(prev => Math.max(0.1, prev * 0.7))}
           className="bg-white border border-gray-300 rounded-lg p-2 shadow-lg hover:bg-gray-50"
+          title="تصغير أكثر"
         >
           -
+        </button>
+        <button
+          onClick={() => {
+            setZoom(1.5)
+            setPanX(0)
+            setPanY(0)
+          }}
+          className="bg-blue-500 text-white border border-gray-300 rounded-lg p-2 shadow-lg hover:bg-blue-600"
+          title="العودة لمسقط"
+        >
+          🏠
         </button>
       </div>
 
