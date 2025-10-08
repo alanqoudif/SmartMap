@@ -27,10 +27,10 @@ export default function IntegratedSmartMap({
   onHouseSelect, 
   onMapClick, 
   selectedHouse, 
-  // waterFeatures = [], 
-  // showBuildings = true, 
-  // onBuildingSelect,
-  // showInformationOverlay = false
+  waterFeatures = [], 
+  showBuildings = true, 
+  onBuildingSelect,
+  showInformationOverlay = false
 }: IntegratedSmartMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<L.Map | null>(null)
@@ -154,13 +154,16 @@ export default function IntegratedSmartMap({
         }
       })
 
-      // إضافة مباني QGIS محسنة (عدد أقل للأداء الأفضل)
+      // إضافة مباني QGIS مبسطة
       const qgisBuildings = [
         { lat: 23.6141, lng: 58.5922, type: 'فيلا', name: 'فيلا السلطان قابوس', color: '#10B981', icon: '🏡' },
         { lat: 23.6150, lng: 58.5930, type: 'شقة', name: 'مجمع الشقق السكنية', color: '#3B82F6', icon: '🏢' },
         { lat: 23.6130, lng: 58.5910, type: 'مبنى تجاري', name: 'مركز التسوق', color: '#EF4444', icon: '🏪' },
         { lat: 23.6160, lng: 58.5940, type: 'مبنى حكومي', name: 'المبنى الحكومي', color: '#06B6D4', icon: '🏛️' },
-        { lat: 23.6120, lng: 58.5900, type: 'مبنى تعليمي', name: 'المدرسة الثانوية', color: '#EC4899', icon: '🏫' }
+        { lat: 23.6120, lng: 58.5900, type: 'مبنى تعليمي', name: 'المدرسة الثانوية', color: '#EC4899', icon: '🏫' },
+        { lat: 23.6170, lng: 58.5950, type: 'مبنى صحي', name: 'المستشفى العام', color: '#F97316', icon: '🏥' },
+        { lat: 23.6110, lng: 58.5890, type: 'بيت شعبي', name: 'البيت الشعبي', color: '#F59E0B', icon: '🏠' },
+        { lat: 23.6180, lng: 58.5960, type: 'عمارة', name: 'عمارة السكنية', color: '#8B5CF6', icon: '🏬' }
       ]
 
       qgisBuildings.forEach((building, index) => {
@@ -358,7 +361,6 @@ export default function IntegratedSmartMap({
           <p>إجمالي البيوت: {houses.length}</p>
           <p>المناطق: {new Set(houses.map(h => h.area)).size}</p>
           <p className="text-green-600 font-semibold">OpenStreetMap + QGIS</p>
-          <p className="text-blue-600 text-xs mt-1">✅ محسن للنشر على Netlify</p>
         </div>
 
         {/* إحصائيات QGIS المبسطة */}
@@ -368,7 +370,7 @@ export default function IntegratedSmartMap({
               📊 إحصائيات QGIS
             </div>
             <div className="grid grid-cols-2 gap-1">
-              <div>🏢 المباني: 5</div>
+              <div>🏢 المباني: 8</div>
               <div>🏠 المنازل: {houses.length}</div>
               <div>🏘️ الأراضي: 0</div>
               <div>🏛️ المحافظات: 1</div>
